@@ -2,5 +2,27 @@
 name = "carddav-cli"
 version = "0.1.0"
 authors = ["Partha Susarla <mail@spartha.org>"]
+categories = ["command-line-utilities"]
+description="A simple carddav client."
+license = "MIT/Apache-2.0"
+readme = "README.md"
 
 [dependencies]
+atty = "0.2.2"
+ansi_term = "0.11"
+console = "0.6"
+
+[dependencies.syntect]
+version = "2.1"
+default-features = false
+features = ["parsing", "yaml-load", "dump-load", "dump-create"]
+
+[dependencies.clap]
+version = "2.32"
+default-features = false
+features = ["suggestions", "color", "wrap_help"]
+
+[dependencies.error-chain]
+version = "0.12"
+default-features = false
+features = []
