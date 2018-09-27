@@ -21,20 +21,20 @@ pub enum PagingMode {
     Never,
 }
 
-#[derive(Clone)]
-pub struct Config<'a> {
-    /// The character width of the terminal
-    pub term_width: usize,
+// #[derive(Clone)]
+// pub struct Config<'a> {
+//     /// The character width of the terminal
+//     pub term_width: usize,
 
-    /// Pager or STDOUT
-    pub paging_mode: PagingMode,
+//     /// Pager or STDOUT
+//     pub paging_mode: PagingMode,
 
-    /// User name
-    pub username: String,
+//     /// User name
+//     pub username: String,
 
-    /// Password
-    pub password: String,
-}
+//     /// Password
+//     pub password: String,
+// }
 
 fn is_truecolor_terminal() -> bool {
     env::var("COLORTERM")
@@ -77,12 +77,33 @@ impl App {
             ).long_about("A CLI based carddav client.")
             .arg(
                 Arg::with_name("URL")
+                    .required(true)
+                    .takes_value(true)
                     .help("URL of the carddav server.")
                     .long_help("URL of the carrdav server")
                     .multiple(false)
                     .empty_values(false),
             )
             .arg(
+                Arg::with_name("user")
+                    .required(true)
+                    .takes_value(true)
+                    .help("username")
+                    .long_help("username for authentication")
+                    .multiple(false)
+                    .empty_values(false),
             )
+            .arg(
+                Arg::with_name("pass")
+                    .required(true)
+                    .takes_value(true)
+                    .help("pasword")
+                    .long_help("pasword for authentication")
+                    .multiple(false)
+                    .empty_values(false),
+            ).subcommand(
+            ).help_message("Print this help message")
+            .version_message("Show version information")
+            .get_matches()
     }
 }

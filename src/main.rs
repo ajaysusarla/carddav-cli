@@ -7,67 +7,38 @@ extern crate error_chain;
 #[macro_use]
 extern crate clap;
 
-extern crate ansi_term;
-extern crate atty;
-extern crate console;
-extern crate syntect;
+extern crate reqwest;
 
-mod app;
-
-use std::collections::HashSet;
-use std::io;
-use std::io::Write;
 use std::process;
 
-use ansi_term::Colour::Green;
-use ansi_term::Style;
+mod utils;
 
-use app::{App, Config};
+fn run() -> Result<(), Box<::std::error::Error>> {
+    let args = clap_app!(carddavcli =>
+                         (version: crate_version!())
+                         (@arg username: -u --user +required +takes_value "Username")
+                         (@arg password: -p --pass +required +takes_value "Password")
+                         (@arg verbose: -v --verbose "be verbose")
+                         (@arg URL: +required +takes_value "CardDAV server URL")
+    ).get_matches();
 
-mod errors {
-    error_chain! {
-        foreign_links {
-            Clap(::clap::Error);
-            Io(::std::io::Error);
-            SyntectError(::syntect::LoadingError);
-            ParseIntError(::std::num::ParseIntError);
-        }
+    let url = utils::parse_url(args.value_of("URL").unwrap())?;
+    let uname = args.value_of("username");
+    let pass = args.value_of("password");
+    let verbose = args.is_present("verbose");
+
+    match url.scheme() {
+        "http" | "https" =>  Ok(()),
+        _ => utils::gen_error(format!("unsupported url scheme '{}'", url.scheme())),
     }
-
-    pub fn handle_error(error: &Error) {
-        match error {
-            &Error(ErrorKind::Io(ref io_error), _)
-                if io_error.kind() == super::io::ErrorKind::BrokenPipe =>
-            {
-                super::process::exit(0);
-            }
-            _ => {
-                use ansi_term::Colour::Red;
-                eprintln!("{}: {}", Red.paint("[carddav-cli error]"), error);
-            }
-        };
-    }
-}
-
-use errors::*;
-
-fn run() -> Result<bool> {
 }
 
 fn main() {
-    let result = run();
-
-    match result {
-        Err(error) => {
-            handle_error(&error);
+    match run() {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("error: {}", e);
             process::exit(1);
-        }
-        Ok(false) => {
-            process::exit(1);
-        }
-        Ok(true) => {
-            process::exit(0);
         }
     }
-
 }
